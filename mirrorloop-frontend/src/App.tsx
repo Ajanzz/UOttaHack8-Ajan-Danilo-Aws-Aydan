@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import "../styles/app.css";
 import type { ApiResult, ComplaintInput } from "./types";
 import { analyzeComplaint } from "./api";
@@ -22,28 +22,25 @@ export default function App() {
   const [result, setResult] = useState<ApiResult | null>(null);
   const [toast, setToast] = useState<{ title: string; message?: string } | null>(null);
 
-  
-  const canSubmit = input.complaint.trim().length >= 10;
+  const canSubmit = useMemo(() => input.complaint.trim().length >= 10, [input.complaint]);
 
   async function onSubmit() {
     if (!canSubmit) {
-      setToast({ title: "Error", message: "Please enter at least 10 characters." });
+      setToast({ title: "Add a bit more detail", message: "Please type at least 10 characters so we can analyze the issue." });
       return;
     }
-
     setLoading(true);
     setToast(null);
-
     try {
-      // Call the API (or Mock)
       const r = await analyzeComplaint({
         ...input,
         orderId: input.orderId?.trim() || undefined,
+        emailOrPhone: input.emailOrPhone?.trim() || undefined,
       });
       setResult(r);
-      setToast({ title: "Success", message: "Case created successfully." });
-    } catch (e) {
-      setToast({ title: "Error", message: "Failed to analyze complaint." });
+      setToast({ title: "Captured", message: `Case ${r.caseId} created with a follow-up draft.` });
+    } catch (e: any) {
+      setToast({ title: "Something went wrong", message: e?.message ?? "Unknown error" });
     } finally {
       setLoading(false);
     }
@@ -51,6 +48,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="bgGlow" aria-hidden="true" />
       <Header />
 
       <main className="shell">
@@ -69,6 +67,12 @@ export default function App() {
             <ResultsPanel result={result} loading={loading} />
           </div>
         </section>
+
+        <footer className="footer">
+          <div className="footNote">
+            Demo UI. Wire to your backend at <span className="mono">POST /api/feedback</span>.
+          </div>
+        </footer>
       </main>
 
       <Toast toast={toast} onClose={() => setToast(null)} />

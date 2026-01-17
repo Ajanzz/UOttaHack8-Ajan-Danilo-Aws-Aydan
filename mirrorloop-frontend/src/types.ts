@@ -15,6 +15,7 @@ export type StructuredFeedback = {
   summary: string;
   evidence_quotes: string[];
   followup_needed: boolean;
+  followup_goal?: string;
 };
 
 export type FollowupSurveyDraft = {
@@ -34,18 +35,13 @@ export type JiraTicket = {
   acceptance_criteria: string[];
   priority: "P0" | "P1" | "P2" | "P3";
 };
-
 export type ActionPlan = {
   top_theme: string;
   recommended_action: string;
   owner: "Store Ops" | "Product" | "Support" | "Delivery" | "Unknown";
+  impact: "low" | "medium" | "high";
+  effort: "low" | "medium" | "high";
   tickets: JiraTicket[];
-};
-
-export type SurveyMonkeyInfo = {
-  survey_id: string | null;
-  collector_id: string | null;
-  weblink_url: string | null;
 };
 
 export type ApiResult = {
@@ -53,6 +49,12 @@ export type ApiResult = {
   structured: StructuredFeedback;
   surveyDraft: FollowupSurveyDraft;
   actionPlan: ActionPlan;
-  createdAt: string;
+  createdAt: string; // ISO
   surveymonkey?: SurveyMonkeyInfo;
+};
+
+export type SurveyMonkeyInfo = {
+  survey_id: string | null;
+  collector_id: string | null;
+  weblink_url: string | null;
 };
