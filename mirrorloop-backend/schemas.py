@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Literal, Optional
 
+# Incoming request (matches the frontend)
 class ComplaintInput(BaseModel):
     complaint: str = Field(min_length=1, max_length=4000)
     channel: Literal["web", "mobile", "in_store", "delivery"]
@@ -8,7 +9,9 @@ class ComplaintInput(BaseModel):
     language: Literal["English", "French", "Arabic", "Other"]
     orderId: Optional[str] = None
     emailOrPhone: Optional[str] = None
+    wpm: Optional[int] = None  
 
+# LLM structured output models
 class StructuredFeedback(BaseModel):
     journey_stage: str
     issue_type: Literal["ux", "bug", "service", "pricing", "inventory", "delivery", "other"]
@@ -44,11 +47,13 @@ class ActionPlan(BaseModel):
     effort: Literal["low", "medium", "high"]
     tickets: List[JiraTicket]
 
+
 class SurveyMonkeyInfo(BaseModel):
     survey_id: Optional[str] = None
     collector_id: Optional[str] = None
     weblink_url: Optional[str] = None
 
+# Final API result (matches frontend ApiResult)
 class ApiResult(BaseModel):
     caseId: str
     structured: StructuredFeedback
@@ -60,5 +65,5 @@ class ApiResult(BaseModel):
 class VoteInput(BaseModel):
     survey_id: str
     collector_id: str
-    score: int 
+    score: int # 1 to 5
     question_index: int = 0

@@ -5,6 +5,7 @@ export type ComplaintInput = {
   language: "English" | "French" | "Arabic" | "Other";
   orderId?: string;
   emailOrPhone?: string;
+  wpm?: number;
 };
 
 export type StructuredFeedback = {
