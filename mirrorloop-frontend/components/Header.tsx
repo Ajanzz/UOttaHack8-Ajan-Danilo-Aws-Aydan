@@ -9,14 +9,14 @@ export default function Header() {
         </div>
         <div>
           <div className="brandTitle">MirrorLoop</div>
-          <div className="brandSub">Modern feedback intake → structured insight → action draft</div>
+          <div className="brandSub">Modern Feedback Intake → Structured Insight → Action draft</div>
         </div>
       </div>
 
       <div className="topbarRight">
         <div className="pill">
           <span className="dot" />
-          Live demo
+          Live Demo
         </div>
       </div>
     </header>

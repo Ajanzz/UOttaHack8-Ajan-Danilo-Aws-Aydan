@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import type { ApiResult } from "../src/types";
 import LoadingDots from "./LoadingDots";
-import { submitVote, fetchSurveyAnswers, type SurveyAnswer } from "../src/api"; 
+import { submitVote, fetchSurveyAnswers, type SurveyAnswer } from "../src/api";
 
 type Props = {
   result: ApiResult | null;
@@ -13,7 +13,7 @@ type Tab = "Structured" | "Pulse Checks" | "Survey Answers" | "Action Plan" | "R
 
 export default function ResultsPanel({ result, loading }: Props) {
   const [tab, setTab] = useState<Tab>("Structured");
-  
+
   // Track voted state for EACH question index independently
   const [votedMap, setVotedMap] = useState<Record<number, boolean>>({});
 
@@ -25,27 +25,27 @@ export default function ResultsPanel({ result, loading }: Props) {
 
   const handleVote = (idx: number, score: number) => {
     if (!result?.surveymonkey) return;
-    
+
     // Optimistically update UI
     setVotedMap((prev) => ({ ...prev, [idx]: true }));
-    
+
     // Send vote with specific question index
     submitVote(
-       result.surveymonkey.survey_id!, 
-       result.surveymonkey.collector_id!, 
-       score,
-       idx
+      result.surveymonkey.survey_id!,
+      result.surveymonkey.collector_id!,
+      score,
+      idx
     );
   };
 
   // Fetch answers when user clicks the "Survey Answers" tab
   useEffect(() => {
     if (tab === "Survey Answers" && result?.surveymonkey?.survey_id) {
-        setLoadingAnswers(true);
-        fetchSurveyAnswers(result.surveymonkey.survey_id).then(data => {
-            setAnswers(data);
-            setLoadingAnswers(false);
-        });
+      setLoadingAnswers(true);
+      fetchSurveyAnswers(result.surveymonkey.survey_id).then(data => {
+        setAnswers(data);
+        setLoadingAnswers(false);
+      });
     }
   }, [tab, result]);
 
@@ -159,22 +159,22 @@ export default function ResultsPanel({ result, loading }: Props) {
             <div className="panel">
               <div className="panelTitle">Interactive Pulse Checks</div>
               <div className="muted" style={{ marginBottom: "15px" }}>
-                 AI-generated micro-surveys specific to this case. Clicking an option submits real data.
+                AI-generated micro-surveys specific to this case. Clicking an option submits real data.
               </div>
 
               {/* --- LOOP: Render a Pulse Check for EVERY question --- */}
-              {result.surveymonkey?.weblink_url && result.surveyDraft.questions.map((q, idx) => (
+              {result.surveyDraft.questions.map((q, idx) => (
                 <div key={idx} className="surveyQ" style={{ marginBottom: "20px" }}>
                   <div className="surveyPrompt" style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
                     <span className="surveyNum">{idx + 1}</span>
                     <span>{q.prompt}</span>
                   </div>
-                  
+
                   {!votedMap[idx] ? (
                     <div style={{ display: "flex", gap: "12px", marginTop: "5px" }}>
                       {[
                         { score: 1, label: "😡 Critical", color: "#ef4444" },
-                        { score: 3, label: "😐 Neutral",  color: "#eab308" },
+                        { score: 3, label: "😐 Neutral", color: "#eab308" },
                         { score: 5, label: "😃 Good", color: "#22c55e" }
                       ].map((btn) => (
                         <button
@@ -200,10 +200,10 @@ export default function ResultsPanel({ result, loading }: Props) {
                       ))}
                     </div>
                   ) : (
-                    <div style={{ 
-                      padding: "15px", 
-                      background: "rgba(37, 104, 156, 0.1)", 
-                      border: "1px solid rgba(34, 143, 197, 0.3)", 
+                    <div style={{
+                      padding: "15px",
+                      background: "rgba(37, 104, 156, 0.1)",
+                      border: "1px solid rgba(34, 143, 197, 0.3)",
                       borderRadius: "8px",
                       textAlign: "center",
                       color: "#feffff",
@@ -212,60 +212,60 @@ export default function ResultsPanel({ result, loading }: Props) {
                       justifyContent: "center",
                       gap: "8px"
                     }}>
-                      <span style={{fontSize: "1.2em"}}>✨</span> 
+                      <span style={{ fontSize: "1.2em" }}>✨</span>
                       <strong>Feedback Captured</strong>
                     </div>
                   )}
                 </div>
               ))}
-              
+
               {!result.surveymonkey?.weblink_url && (
-                  <div className="muted">Generating survey link...</div>
+                <div className="muted">Generating survey link...</div>
               )}
             </div>
           )}
 
           {tab === "Survey Answers" && (
             <div className="panel">
-                <div className="panelTitle" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                    <span>Live Responses from SurveyMonkey</span>
-                    <button 
-                        onClick={() => {
-                            if (result.surveymonkey?.survey_id) {
-                                setLoadingAnswers(true); 
-                                fetchSurveyAnswers(result.surveymonkey.survey_id).then(d => { setAnswers(d); setLoadingAnswers(false); });
-                            }
-                        }}
-                        style={{background:'transparent', border:'1px solid #555', borderRadius:'4px', color:'#ccc', fontSize:'11px', cursor:'pointer', padding: '6px 12px'}}
-                    >
-                        Refresh ↻
-                    </button>
-                </div>
-                
-                {loadingAnswers ? (
-                    <div className="resultsLoading"><LoadingDots /></div>
-                ) : answers.length === 0 ? (
-                    <div className="muted">No responses found yet. Try submitting a Pulse Check!</div>
-                ) : (
-                    <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-                        {answers.map((ans, i) => (
-                            <div key={i} className="surveyQ" style={{display:'flex', flexDirection:'column', gap:'4px'}}>
-                                <div className="labelSm">{new Date(ans.timestamp).toLocaleString()}</div>
-                                <div style={{fontWeight: 600, color: '#fff'}}>{ans.question}</div>
-                                <div style={{
-                                    marginTop:'6px', 
-                                    padding:'8px', 
-                                    background: 'rgba(124, 92, 255, 0.1)', 
-                                    border: '1px solid rgba(124, 92, 255, 0.3)', 
-                                    borderRadius:'6px', 
-                                    color: '#A78BFA'
-                                }}>
-                                    Answer: <strong>{ans.answer}</strong>
-                                </div>
-                            </div>
-                        ))}
+              <div className="panelTitle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Live Responses from SurveyMonkey</span>
+                <button
+                  onClick={() => {
+                    if (result.surveymonkey?.survey_id) {
+                      setLoadingAnswers(true);
+                      fetchSurveyAnswers(result.surveymonkey.survey_id).then(d => { setAnswers(d); setLoadingAnswers(false); });
+                    }
+                  }}
+                  style={{ background: 'transparent', border: '1px solid #555', borderRadius: '4px', color: '#ccc', fontSize: '11px', cursor: 'pointer', padding: '6px 12px' }}
+                >
+                  Refresh ↻
+                </button>
+              </div>
+
+              {loadingAnswers ? (
+                <div className="resultsLoading"><LoadingDots /></div>
+              ) : answers.length === 0 ? (
+                <div className="muted">No responses found yet. Try submitting a Pulse Check!</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {answers.map((ans, i) => (
+                    <div key={i} className="surveyQ" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div className="labelSm">{new Date(ans.timestamp).toLocaleString()}</div>
+                      <div style={{ fontWeight: 600, color: '#fff' }}>{ans.question}</div>
+                      <div style={{
+                        marginTop: '6px',
+                        padding: '8px',
+                        background: 'rgba(124, 92, 255, 0.1)',
+                        border: '1px solid rgba(124, 92, 255, 0.3)',
+                        borderRadius: '6px',
+                        color: '#A78BFA'
+                      }}>
+                        Answer: <strong>{ans.answer}</strong>
+                      </div>
                     </div>
-                )}
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

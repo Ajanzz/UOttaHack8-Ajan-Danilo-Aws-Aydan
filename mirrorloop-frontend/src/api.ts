@@ -1,7 +1,7 @@
 import type { ApiResult, ComplaintInput } from "./types";
 import { mockAnalyzeComplaint } from "./mock";
 
-const API_BASE = "http://localhost:8001";
+const API_BASE = "http://localhost:8000";
 
 export async function analyzeComplaint(payload: ComplaintInput): Promise<ApiResult> {
   // If backend isn't running, return a mock so the demo always works.
@@ -28,7 +28,7 @@ export async function analyzeComplaint(payload: ComplaintInput): Promise<ApiResu
 
 export async function submitVote(survey_id: string, collector_id: string, score: number, question_index: number = 0) {
   try {
-    await fetch(`http://localhost:8001/api/vote`, {
+    await fetch(`${API_BASE}/api/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ survey_id, collector_id, score, question_index }),
@@ -50,7 +50,7 @@ export type SurveyAnswer = {
 
 export async function fetchSurveyAnswers(surveyId: string): Promise<SurveyAnswer[]> {
   try {
-    const res = await fetch(`http://localhost:8001/api/answers/${surveyId}`);
+    const res = await fetch(`${API_BASE}/api/answers/${surveyId}`);
     if (!res.ok) return [];
     return await res.json();
   } catch (e) {
